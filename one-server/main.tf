@@ -10,7 +10,7 @@ resource "aws_instance" "example" {
   user_data = <<-EOF
               #!/bin/bash
               echo "Hello, World" > index.html
-              nohup busybox httpd -f -p 8080 &
+              nohup busybox httpd -f -p ${var.server_port} &
               EOF
 
   user_data_replace_on_change = true
@@ -25,8 +25,8 @@ resource "aws_security_group" "instance" {
   name = var.security_group_name
 
   ingress {
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = var.server_port
+    to_port     = var.server_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -36,6 +36,12 @@ variable "security_group_name" {
   description = "The name of the security group"
   type        = string
   default     = "terraform-example-instance"
+}
+
+variable "server_port" {
+  type        = number
+  description = "The port the server will use for HTTP requests"
+  default     = 8080
 }
 
 output "public_ip" {
